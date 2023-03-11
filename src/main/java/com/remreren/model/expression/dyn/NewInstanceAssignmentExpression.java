@@ -20,12 +20,12 @@ public class NewInstanceAssignmentExpression extends DynamicAssignmentExpression
     private List<ParameterModel> parameters = new ArrayList<>();
 
     @Override
-    public String getImport() {
+    public List<String> getImports() {
         if (clazz.getPkg() == null) {
-            return null;
+            return List.of();
         }
 
-        return clazz.getPkg().concat(clazz.getName());
+        return List.of(clazz.getPkg().concat(".").concat(clazz.getName()));
     }
 
     @Override

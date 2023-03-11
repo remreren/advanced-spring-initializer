@@ -2,10 +2,12 @@ package com.remreren.model.expression;
 
 import com.remreren.model.Interpolation;
 
-public abstract class Expression implements Interpolation {
+import java.util.List;
 
-    public String getImport() {
-        return null;
+public interface Expression extends Interpolation {
+
+    default List<String> getImports() {
+        return List.of();
     }
 
 }

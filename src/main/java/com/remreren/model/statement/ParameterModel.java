@@ -19,8 +19,4 @@ public class ParameterModel implements Interpolation {
     public String interpolate() {
         return clazz.getName().concat(" ").concat(name);
     }
-
-    public VariableModel toVariable() {
-        return new VariableModel(clazz, name);
-    }
 }

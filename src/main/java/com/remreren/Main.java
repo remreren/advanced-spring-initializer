@@ -3,9 +3,12 @@ package com.remreren;
 import com.remreren.model.ClassModel;
 import com.remreren.model.Keyword;
 import com.remreren.model.MethodModel;
+import com.remreren.model.expression.dyn.ClassFieldAccessExpression;
 import com.remreren.model.expression.dyn.MethodInvocationExpression;
 import com.remreren.model.expression.dyn.NewInstanceAssignmentExpression;
+import com.remreren.model.expression.dyn.ObjectFieldAccessExpression;
 import com.remreren.model.expression.stat.StringAssignmentExpression;
+import com.remreren.model.field.FieldModel;
 import com.remreren.model.statement.ParameterModel;
 import com.remreren.model.statement.ReturnStatement;
 import com.remreren.model.statement.VariableAssignmentStatement;
@@ -18,34 +21,57 @@ public class Main {
     public static void main(String[] args) {
 
         var greetClass = new ClassModel().setName("Greet")
-                .addAnnotation(AllArgsConstructor.class);
+                .setPkg("com.remreren")
+                .addAnnotation(AllArgsConstructor.class)
+                .addModifiers(Keyword.PUBLIC);
 
-        var classInstantiation = new NewInstanceAssignmentExpression().setClazz(greetClass);
-        var statement = new VariableAssignmentStatement().setName("greet").setExpression(classInstantiation);
+        var greetMethod = new MethodModel()
+                .setName("greet")
+                .addModifiers(Keyword.PUBLIC)
+                .setParameters(List.of(new ParameterModel().setName("name").setClazz(ClassModel.of(String.class))))
+                .setType(ClassModel.of(String.class));
 
-        var mainMethod = new MethodModel().setName("main").addStatement(statement).addModifiers(Keyword.PUBLIC, Keyword.STATIC, Keyword.VOID);
+        var concatMethod = new MethodModel().setName("concat").setType(ClassModel.of(String.class)).setParameters(List.of(new ParameterModel()));
+        var concatGreetingsStatement = new MethodInvocationExpression()
+                .setMethod(concatMethod)
+                .setField(new StringAssignmentExpression("Greetings, "))
+                .setParameters(
+                        List.of(new ObjectFieldAccessExpression().setField(new FieldModel().setName("name"))));
+        var returnString = new ReturnStatement().setExpression(concatGreetingsStatement);
 
-        var greetMethodNameParameter = new ParameterModel().setName("name").setClazz(ClassModel.of(String.class));
-        var greetMethod = new MethodModel().setName("greetings").addModifiers(Keyword.PUBLIC).setType(ClassModel.of(String.class)).setParameters(List.of(greetMethodNameParameter));
+        greetMethod.addStatement(returnString);
 
-        var nameStatement = new VariableAssignmentStatement().setName("name").setExpression(new StringAssignmentExpression("Emre"));
+        var mainMethod = new MethodModel()
+                .setName("main")
+                .addModifiers(Keyword.PUBLIC, Keyword.STATIC, Keyword.VOID);
 
-        mainMethod.addStatement(nameStatement);
+        var greetingsClassInstantiation = new VariableAssignmentStatement()
+                .setName("greetingService")
+                .setExpression(new NewInstanceAssignmentExpression().setClazz(greetClass));
 
-        var greetInvocationExpression = new MethodInvocationExpression().setMethod(greetMethod).setParameters(List.of(nameStatement.toVariable())).setVariable(statement.toVariable());
-        var greetStatement = new VariableAssignmentStatement().setName("greeted").setExpression(greetInvocationExpression);
+        var greetUser = new VariableAssignmentStatement()
+                .setName("greetings")
+                .setExpression(new MethodInvocationExpression()
+                        .setField(greetingsClassInstantiation.toField())
+                        .setMethod(greetMethod)
+                        .setParameters(List.of(new StringAssignmentExpression("Emre"))));
 
-        mainMethod.addStatement(greetStatement);
+        var systemClass = ClassModel.of(System.class);
+        var outField = new FieldModel().setClazz(systemClass).setName("out");
+        var printlnExpr = new ClassFieldAccessExpression()
+                .setClazz(systemClass)
+                .setField(outField)
+                .setExpression(new MethodInvocationExpression()
+                        .setMethod(new MethodModel()
+                                .setName("println")
+                                .setParameters(List.of(new ParameterModel())))
+                        .setParameters(List.of(greetUser.toField())));
 
-        var concatenation = new MethodModel().setName("concat").setParameters(List.of(new ParameterModel()));
-        var greetingsVariable = new VariableAssignmentStatement().setName("greetingString").setExpression(new StringAssignmentExpression("Greetings, "));
-        var concatGreetStatement = new ReturnStatement(new MethodInvocationExpression().setMethod(concatenation).setVariable(greetingsVariable.toVariable()).setParameters(List.of(greetMethodNameParameter.toVariable())));
+        mainMethod.addStatement(greetUser)
+                .addStatement(printlnExpr);
 
-        greetMethod.addStatement(greetingsVariable);
-        greetMethod.addStatement(concatGreetStatement);
-
-        greetClass.addMethod(mainMethod);
-        greetClass.addMethod(greetMethod);
+        greetClass.addMethod(mainMethod)
+                .addMethod(greetMethod);
 
         var interpolated = greetClass.interpolate();
 

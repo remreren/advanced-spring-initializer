@@ -1,7 +1,7 @@
 package com.remreren.model.expression.stat;
 
-import com.remreren.model.expression.Expression;
+import com.remreren.model.expression.SubExpression;
 
-public abstract class StaticAssignmentExpression extends Expression {
+public interface StaticAssignmentExpression extends SubExpression {
 
 }

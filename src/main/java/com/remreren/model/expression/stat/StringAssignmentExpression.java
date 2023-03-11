@@ -3,7 +3,7 @@ package com.remreren.model.expression.stat;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class StringAssignmentExpression extends StaticAssignmentExpression {
+public class StringAssignmentExpression implements StaticAssignmentExpression {
 
     private final String value;
 

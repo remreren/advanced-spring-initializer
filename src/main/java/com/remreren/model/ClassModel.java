@@ -23,7 +23,7 @@ public final class ClassModel implements Interpolation {
 
     private List<Class<? extends Annotation>> annotations = new ArrayList<>();
 
-    private Keyword visibility = Keyword.PUBLIC;
+    private Set<Keyword> modifiers = new HashSet<>();
 
     private String pkg;
 
@@ -40,16 +40,22 @@ public final class ClassModel implements Interpolation {
     public String interpolate() {
         var annotationsInterpolated = interpolateAnnotations();
         var methodsInterpolated = interpolateMethods();
-
         var importsInterpolated = String.join("\n", importStatements);
+        var classDefinition = modifiers.stream().map(Keyword::getValue).collect(Collectors.joining(" ")).concat(" class ").concat(name).concat(" {");
 
-        var classDefinition = visibility.getValue().concat(" class ").concat(name).concat(" {");
+        var interpolated = "";
+        if (pkg != null) {
+            interpolated = interpolated.concat("package %s;%n%n".formatted(pkg));
+        }
 
-        return importsInterpolated.concat("\n\n")
+        interpolated = interpolated
+                .concat(importsInterpolated).concat("\n\n")
                 .concat(annotationsInterpolated).concat("\n")
                 .concat(classDefinition).concat("\n")
                 .concat(methodsInterpolated).concat("\n")
                 .concat("}\n");
+
+        return interpolated;
     }
 
     private String interpolateAnnotations() {
@@ -68,6 +74,11 @@ public final class ClassModel implements Interpolation {
 
     public ClassModel addMethod(MethodModel method) {
         methods.add(method);
+        return this;
+    }
+
+    public ClassModel addModifiers(Keyword... modifiers) {
+        this.modifiers.addAll(List.of(modifiers));
         return this;
     }
 }

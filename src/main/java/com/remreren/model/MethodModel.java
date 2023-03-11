@@ -1,7 +1,7 @@
 package com.remreren.model;
 
+import com.remreren.model.expression.Expression;
 import com.remreren.model.statement.ParameterModel;
-import com.remreren.model.statement.StatementModel;
 import com.remreren.model.statement.VariableAssignmentStatement;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +16,7 @@ import java.util.stream.IntStream;
 @Accessors(chain = true)
 public class MethodModel implements Interpolation {
 
-    private List<StatementModel> statements = new ArrayList<>();
+    private List<Expression> statements = new ArrayList<>();
 
     private Set<Keyword> modifiers = new HashSet<>();
 
@@ -29,7 +29,6 @@ public class MethodModel implements Interpolation {
     @Override
     public String interpolate() {
         return "\t".concat(modifiers.stream().map(Keyword::getValue).collect(Collectors.joining(" ")))
-
                 .concat(modifiers.contains(Keyword.VOID) ? "": " %s".formatted(type.getName())).concat(" ")
                 .concat(name)
                 .concat("(").concat(interpolateParameters()).concat(")").concat(" {\n")
@@ -49,23 +48,23 @@ public class MethodModel implements Interpolation {
     }
 
     private String interpolateStatements() {
-        return statements.stream().map(StatementModel::interpolate).map("\t\t%s;"::formatted).collect(Collectors.joining("\n"));
+        return statements.stream().map(Expression::interpolate).map("\t\t%s;"::formatted).collect(Collectors.joining("\n"));
     }
 
     private List<String> getImports() {
         var classesFiltered = statements.stream().filter(VariableAssignmentStatement.class::isInstance);
         return classesFiltered
-                .map(stmt -> (((VariableAssignmentStatement) stmt).getExpression().getImport()))
+                .map(stmt -> (((VariableAssignmentStatement) stmt).getExpression().getImports()))
                 .filter(Objects::nonNull)
-                .map(imp -> "import ".concat(imp).concat(";")).toList();
+                .flatMap(imps -> imps.stream().map("import %s;"::formatted)).toList();
     }
 
     private String interpolateParameters() {
         return parameters.stream().map(ParameterModel::interpolate).collect(Collectors.joining("\n"));
     }
 
-    public MethodModel addStatement(StatementModel statement) {
-        statements.add(statement);
+    public MethodModel addStatement(Expression expression) {
+        statements.add(expression);
         return this;
     }
 
