@@ -64,7 +64,7 @@ public final class ClassModel implements Interpolation {
     }
 
     private String interpolateMethods() {
-        return methods.stream().map(method -> method.interpolate(importStatements)).collect(Collectors.joining("\n\n"));
+        return methods.stream().map(method -> method.interpolate(importStatements)).collect(Collectors.joining("\n"));
     }
 
     public ClassModel addAnnotation(Class<? extends Annotation> annotation) {

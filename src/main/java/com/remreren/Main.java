@@ -3,12 +3,11 @@ package com.remreren;
 import com.remreren.model.ClassModel;
 import com.remreren.model.Keyword;
 import com.remreren.model.MethodModel;
-import com.remreren.model.expression.dyn.ClassFieldAccessExpression;
-import com.remreren.model.expression.dyn.MethodInvocationExpression;
-import com.remreren.model.expression.dyn.NewInstanceAssignmentExpression;
-import com.remreren.model.expression.dyn.ObjectFieldAccessExpression;
+import com.remreren.model.expression.dyn.*;
+import com.remreren.model.expression.stat.IntegerAssignmentExpression;
 import com.remreren.model.expression.stat.StringAssignmentExpression;
 import com.remreren.model.field.FieldModel;
+import com.remreren.model.statement.IfStatement;
 import com.remreren.model.statement.ParameterModel;
 import com.remreren.model.statement.ReturnStatement;
 import com.remreren.model.statement.VariableAssignmentStatement;
@@ -67,8 +66,16 @@ public class Main {
                                 .setParameters(List.of(new ParameterModel())))
                         .setParameters(List.of(greetUser.toField())));
 
+        var boolExpr = new BooleanExpression()
+                .setLeft(new IntegerAssignmentExpression(10))
+                .setRight(new IntegerAssignmentExpression(15))
+                .setSign(BooleanExpression.Sign.MORE);
+
+        var ifStatement = new IfStatement().setExpression(boolExpr);
+
         mainMethod.addStatement(greetUser)
-                .addStatement(printlnExpr);
+                .addStatement(printlnExpr)
+                .addStatement(ifStatement);
 
         greetClass.addMethod(mainMethod)
                 .addMethod(greetMethod);

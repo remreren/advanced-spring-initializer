@@ -1,4 +1,18 @@
 package com.remreren.model.statement;
 
-public interface ConditionalStatement extends Statement {
+import com.remreren.model.expression.Expression;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+@Setter
+@Accessors(chain = true)
+public abstract class ConditionalStatement implements Statement {
+
+    protected List<Expression> statements = new ArrayList<>();
+
 }
